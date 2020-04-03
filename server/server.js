@@ -33,12 +33,15 @@ const router = require("./routes/index");
 app.use("/api", router);
 
 //ERROR HANDLER
+const errorHandler = require("./errors_handlers/errorHandler");
 app.use((err, req, res, next) => {
-    if (err.status == 404) {
-        res.status(404).send("Not found");
-    } else {
-        res.status(500).send("Internal server error");
-    }
+    errorHandler(err, req, res, next);
+});
+
+//404 HANDLER
+//To express, 404 is not an error
+app.use((req, res, next) => {
+    res.status(404).send("Not found");
 });
 
 //START LISTENING

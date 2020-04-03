@@ -13,7 +13,7 @@ router.use(
             if (!user) {
                 return res.json({ message: info.message });
             }
-            req.user = user;
+            res.locals.user = user;
             next();
         })(req, res, next);
     },

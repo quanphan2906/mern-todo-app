@@ -15,15 +15,15 @@ passport.use(
 
             if (user) {
                 return done(null, false, {
-                    message: "Username has been used"
+                    message: "usedUsername"
                 });
             }
 
             UserModel.create({ username, password }).then(user => {
-                done(null, user, { message: "Signup success" });
+                done(null, user, { message: "success" });
             });
         } catch (err) {
-            done(err, false, { message: `An error occurred: ${err}` });
+            done(err);
         }
     })
 );
@@ -36,23 +36,23 @@ passport.use(
 
             if (!user) {
                 return done(null, false, {
-                    message: "User has not registered"
+                    message: "notRegistered"
                 });
             }
 
             const compare = await user.validatePassword(password);
             if (!compare) {
                 return done(null, false, {
-                    message: "Incorrect password"
+                    message: "incorrectPassword"
                 });
             }
 
             //signing the token
             const tokenBody = { _id: user._id, username: user.username };
             const token = jwt.sign({ user: tokenBody }, jwtSecret);
-            done(null, user, { message: "Login success", token });
+            done(null, user, { message: "success", token });
         } catch (err) {
-            done(err, false, { message: `There has been an error: ${err}` });
+            done(err);
         }
     })
 );
