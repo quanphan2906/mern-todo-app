@@ -19,14 +19,14 @@ const mongoose = require("mongoose");
 mongoose
     .connect(process.env.MONGO_URI, {
         useUnifiedTopology: true,
-        useNewUrlParser: true
+        useNewUrlParser: true,
+        useCreateIndex: true,
     })
     .then(() => console.log("Connected to MongoDB"))
-    .catch(err => console.log(`Failed to connect to MongoDB ${err}`));
+    .catch((err) => console.log(`Failed to connect to MongoDB ${err}`));
 
 //BODY-PARSER
 app.use(express.json());
-app.use(express.urlencoded());
 
 //ROUTES HANDLER
 const router = require("./routes/index");

@@ -4,10 +4,19 @@ const model = mongoose.model;
 
 const PromptSchema = new Schema(
     {
-        content: String
+        topic: {
+            type: String,
+            required: true,
+            maxlength: 20,
+        },
+        content: {
+            type: String,
+            required: true,
+            maxlength: 500,
+        },
     },
     {
-        timestamps: true
+        timestamps: true,
     }
 );
 

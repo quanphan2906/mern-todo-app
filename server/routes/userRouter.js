@@ -25,7 +25,7 @@ router
             //if change username, check if sb else has used that username
             if (req.body.username) {
                 const sameUsernameUser = await UserModel.findOne({
-                    username: req.body.username
+                    username: req.body.username,
                 });
                 if (sameUsernameUser !== null) {
                     return res.json({ message: "usedUsername" });
@@ -47,12 +47,33 @@ router
 
 router.get("/draft/", async (req, res, next) => {
     try {
-        const userId = res.locals.user._id;
-        const drafts = await UserModel.find({ author: userId });
-        if (drafts.length !== 0) {
-            //TODO: pagination here
+        const resPerPage = req.query.perPage ? parseInt(req.query.perPage) : 2;
+        const page = req.query.page ? parseInt(req.query.page) : 1;
+
+        const queryObj = {
+            author: res.locals.user._id,
+            topic: req.query.topic || "education",
+        };
+
+        if (req.body.searchText)
+            queryObj.$text = { $search: req.body.searchText };
+
+        const total = await DraftModel.countDocuments(queryObj);
+        const totalPage =
+            total % resPerPage === 0
+                ? total / resPerPage
+                : Math.floor(total / resPerPage) + 1;
+
+        if (page > totalPage) {
+            return res.json({ prompts: [], totalPage, message: "notFound" });
         }
-        res.json({ drafts });
+
+        const drafts = await DraftModel.find(queryObj)
+            .skip((page - 1) * resPerPage)
+            .limit(resPerPage)
+            .sort({ createdAt: -1 });
+
+        res.json({ drafts, totalPage });
     } catch (err) {
         next(err);
     }
@@ -60,8 +81,15 @@ router.get("/draft/", async (req, res, next) => {
 
 router.post("/draft/create", async (req, res, next) => {
     try {
-        const { author, prompt, content } = req.body;
-        const newDraft = await DraftModel.create({ author, prompt, content });
+        const author = res.locals.user._id;
+        const { prompt, content, title, topic } = req.body;
+        const newDraft = await DraftModel.create({
+            author,
+            topic,
+            prompt,
+            content,
+            title,
+        });
         res.json({ draft: newDraft, message: "Create success" });
     } catch (err) {
         next(err);

@@ -4,11 +4,27 @@ const AppError = require("../errors_handlers/AppError");
 
 router.get("/", async (req, res, next) => {
     try {
-        const prompts = await PromptModel.find({});
-        if (prompts.length !== 0) {
-            //TODO: pagination over here!
+        const resPerPage = req.query.perPage ? parseInt(req.query.perPage) : 2;
+        const page = req.query.page ? parseInt(req.query.page) : 1;
+
+        const topic = req.query.topic || "education";
+
+        const total = await PromptModel.countDocuments({ topic });
+        const totalPage =
+            total % resPerPage === 0
+                ? total / resPerPage
+                : Math.floor(total / resPerPage) + 1;
+
+        if (page > totalPage) {
+            return res.json({ prompts: [], totalPage, message: "notFound" });
         }
-        res.json({ prompts });
+
+        const prompts = await PromptModel.find({ topic })
+            .skip((page - 1) * resPerPage)
+            .limit(resPerPage)
+            .sort({ createdAt: -1 });
+
+        res.json({ prompts, totalPage });
     } catch (err) {
         next(err);
     }
@@ -30,7 +46,8 @@ router.get("/:id", async (req, res, next) => {
 router.post("/create", async (req, res, next) => {
     try {
         const prompt = await PromptModel.create({
-            content: req.body.content
+            topic: req.body.topic,
+            content: req.body.content,
         });
         res.json({ message: "success", prompt: prompt });
     } catch (err) {
