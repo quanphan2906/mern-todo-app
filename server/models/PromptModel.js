@@ -4,6 +4,10 @@ const model = mongoose.model;
 
 const PromptSchema = new Schema(
     {
+        author: {
+            type: Schema.Types.ObjectId,
+            ref: "User",
+        },
         topic: {
             type: String,
             required: true,
@@ -14,10 +18,11 @@ const PromptSchema = new Schema(
             required: true,
             maxlength: 500,
         },
+        isPublic: { type: Boolean, required: true },
     },
     {
         timestamps: true,
     }
 );
 
-module.exports = model("prompts", PromptSchema);
+module.exports = model("Prompt", PromptSchema);

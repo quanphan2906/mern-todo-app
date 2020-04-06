@@ -5,18 +5,16 @@ const model = mongoose.model;
 const DraftSchema = new Schema(
     {
         author: {
-            type: String,
+            type: Schema.Types.ObjectId,
             required: true,
+            ref: "User",
         },
-        title: {
-            type: String,
+        prompt: {
+            type: Schema.Types.ObjectId,
+            ref: "Prompt",
             required: true,
         },
         topic: String,
-        prompt: {
-            isFromLib: Boolean,
-            content: String,
-        },
         content: String,
     },
     {
@@ -24,6 +22,4 @@ const DraftSchema = new Schema(
     }
 );
 
-DraftSchema.index({ "$**": "text" });
-
-module.exports = model("drafts", DraftSchema);
+module.exports = model("Draft", DraftSchema);

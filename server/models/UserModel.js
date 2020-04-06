@@ -9,28 +9,28 @@ const UserSchema = new Schema(
             type: String,
             required: true,
             trim: true,
-            minlength: 6
+            minlength: 6,
         },
         password: {
             type: String,
             required: true,
-            minlength: 6
-        }
+            minlength: 6,
+        },
     },
     {
-        timestamps: true
+        timestamps: true,
     }
 );
 
-UserSchema.pre("save", function(next) {
+UserSchema.pre("save", function (next) {
     const hash = bcrypt.hashSync(this.password, 10);
     this.password = hash;
     next();
 });
 
-UserSchema.methods.validatePassword = function(password) {
+UserSchema.methods.validatePassword = function (password) {
     const compare = bcrypt.compareSync(password, this.password);
     return compare;
 };
 
-module.exports = model("users", UserSchema);
+module.exports = model("User", UserSchema);
